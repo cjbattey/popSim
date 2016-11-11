@@ -26,7 +26,7 @@ shinyServer(function(input,output,session){
     sumTable <- data.frame(matrix(ncol=14))
     withProgress(message="simulating populations...",value=0,{
       for(i in 1:100){
-        df <- runPopSim.noMelt(gen=100,p=input$p,Waa=input$Waa,Wab=input$Wab,Wbb=input$Wbb,n=input$n,nPop=2,m=input$m)
+        df <- runPopSim.noMelt(gen=100,p=input$p,Waa=input$Waa,Wab=input$Wab,Wbb=input$Wbb,n=input$n,nPop=2,m=input$m,drift=input$drift)
         names(sumTable) <- names(df)
         sumTable[i,] <- df[nrow(df),]
         incProgress(1/100)
