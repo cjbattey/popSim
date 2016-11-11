@@ -1,4 +1,4 @@
-#development script for popgen simulations (R translation of Joe Felsenstein's PopG, adding more visualization and summary stats)
+#development script for popgen simulations (+/- R translation of PopG, adding more visualization and summary stats)
 library(plyr);library(reshape);library(ggplot2);library(magrittr)
 
 #binomial draw for new genotype frequencies
@@ -17,23 +17,23 @@ runPopSim <- function(gen=100,p=0.5,Waa=1,Wab=1,Wbb=1,n=100,nPop=2,m=0,stats=c("
     for(j in 1:nPop){
       p <- allele.freq[i,j]
       q <- 1-p
-      pp <- p #store parental allele freq's for He
+      pp <- p #store parental allele freq's
       p <- p*(1-m)+m*mean.p # migration
       if(p>0 && p<1){ #if alleles are not fixed
-        w <- p*p*Waa+2*p*q*Wab+q*q*Wbb
-        freq.aa <- (p*p*Waa)/w # selection
+        w <- p*p*Waa+2*p*q*Wab+q*q*Wbb #population average fitness
+        freq.aa <- (p*p*Waa)/w #get post-selection genotype frequencies (ie weighted by relative fitness)
         freq.ab <- (2*p*q*Wab)/w
         if(drift==T){ 
-            Naa <- binomialDraw(n,freq.aa) # drift (popG magic)
+            Naa <- binomialDraw(n,freq.aa) # binomial draw for number of new genotype counts (ie drift)
           if(freq.aa<1){ 
             Nab <- binomialDraw((n-Naa),(freq.ab/(1-freq.aa)))
           }
           else {
             Nab <- 0
           }
-          allele.freq[(i+1),j] <- ((2*Naa)+Nab)/(2*n)#new p after drift
-          allele.freq[(i+1),(j+nPop)] <- Nab/n #Ho
-          allele.freq[(i+1),(j+2*nPop)] <- 2*pp*q #He
+          allele.freq[(i+1),j] <- ((2*Naa)+Nab)/(2*n)#new p after drift in columns 1:nPop
+          allele.freq[(i+1),(j+nPop)] <- Nab/n #Ho in columns (nPop+1):(nPop*2)
+          allele.freq[(i+1),(j+2*nPop)] <- 2*pp*q #He in columns (nPop*2+1):nPop*3
         } 
         else { #no drift (infinite population) conditions
           allele.freq[(i+1),j] <- freq.aa+(freq.ab/2)

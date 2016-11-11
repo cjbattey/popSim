@@ -35,16 +35,29 @@ shinyServer(function(input,output,session){
     sumTable
   })
  
-  tableData <- reactive({
+  meanTable <- reactive({
     tbl <- colMeans(sumTable(),na.rm=T)
-    Fst.var <- var(sumTable()$Fst,na.rm=T)
     tbl <- tbl[c("Fis","Hs","Ht","Fst")]
-    tbl$Fst.var <- Fst.var
-    tbl <- data.frame(tbl)
+    t(tbl)
   })
   
-  output$table <- renderTable(tableData(),colnames = T,digits=4,caption = "Mean state at final generation:",
+  varTable <- reactive({
+    tbl <- apply(sumTable(),2,function(e) var(e,na.rm=T))
+    tbl <- tbl[c("Fis","Hs","Ht","Fst")]
+    t(tbl)
+  })
+  
+  
+  
+  output$meanTable <- renderTable(meanTable(),colnames = T,digits=4,caption = "Mean state at final generation:",
                               caption.placement = getOption("xtable.caption.placement", "top"),
                               caption.width = getOption("xtable.caption.width", NULL))
-  output$sumTable <- renderTable(sumTable())
+  
+  output$varTable <- renderTable(varTable(),colnames = T,digits=4,caption = "Variance:",
+                                 caption.placement = getOption("xtable.caption.placement", "top"),
+                                 caption.width = getOption("xtable.caption.width", NULL))
+  
+  output$sumTable <- renderTable(sumTable(),caption = "Final Generation States:",
+                                 caption.placement = getOption("xtable.caption.placement", "top"),
+                                 caption.width = getOption("xtable.caption.width", NULL))
 })

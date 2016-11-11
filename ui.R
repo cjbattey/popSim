@@ -1,5 +1,5 @@
 shinyUI(fluidPage(
-  titlePanel("popSim: Population Genetic Simulations in R"),
+  titlePanel("driftR: Population Genetic Simulations in R"),
   sidebarLayout(
     sidebarPanel(
       numericInput("p","Starting allele frequency",value=0.5,min=0,max=1),
@@ -11,9 +11,9 @@ shinyUI(fluidPage(
       numericInput("nPop","Number of Populations",2,min=1,max=100),
       numericInput("gen","Number of Generations",100,min=1,max=5000),
       checkboxGroupInput(inputId="plotStats",label="plot:",choices=c("p","Hs","Ht","Fis","Fst"),inline=T,selected="p"),
-      checkboxInput("drift","Drift?",value = T),
+      div(style="margin-left:40%;",checkboxInput("drift","Drift?",value = T)),
       actionButton("go","go",width="100%"),
-      div(helpText("popSim simulates allele and genotype frequencies for a single biallelic locus in biological populations. 
+      div(helpText("driftR simulates allele and genotype frequencies for a single biallelic locus in biological populations. 
                     Core functions adapted from the Java program popG (http://evolution.gs.washington.edu/popgen/popg.html). 
                     Full code available on github: https://github.com/cjbattey/popSim"),style="font-size:75%")
       ),
@@ -23,7 +23,8 @@ shinyUI(fluidPage(
       helpText("Click the button below to run 100, 100-generation simulations of 2 populations using the current 
                parameters."),
       actionButton("runSim","Run Replicate Simulations"),
-      tableOutput("table"),
+      tableOutput("meanTable"),
+      tableOutput("varTable"),
       div(tableOutput("sumTable"), style = "font-size: 75%; width: 75%;")
     )
     )
