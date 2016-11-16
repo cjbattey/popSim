@@ -3,6 +3,7 @@ shinyUI(fluidPage(
   sidebarLayout(
     sidebarPanel(
       numericInput("p","Starting allele frequency",value=0.5,min=0,max=1),
+      sliderInput("Uab","Mutation Rate",value=0,min=0,max=0.1),
       sliderInput("Waa","Fitness of genotype AA",value=1,min=0,max=1),
       sliderInput("Wab","Fitness of genotype AB",value=1,min=0,max=1),
       sliderInput("Wbb","Fitness of genotype BB",value=1,min=0,max=1),
@@ -20,6 +21,7 @@ shinyUI(fluidPage(
     
     mainPanel(
       plotOutput("plot"),
+      textOutput("nLost"),
       helpText("Click the button below to run 100, 100-generation simulations of 2 populations using the current 
                parameters."),
       actionButton("runSim","Run Replicate Simulations"),

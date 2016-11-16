@@ -4,7 +4,7 @@ shinyServer(function(input,output,session){
   
   source("./dev.R")
   
-  plot.data <- eventReactive(input$go,ignoreNULL = F,{
+  sim.data <- eventReactive(input$go,ignoreNULL = F,{
     validate(
       need(input$gen<=5000,"Please select < 5000 generations."),
       need(input$nPop<=100,"Please select < 100 populations"),
@@ -12,11 +12,26 @@ shinyServer(function(input,output,session){
       need(input$plotStats!="","Select a variable to plot.")
       )
     runPopSim(gen=input$gen,p=input$p,Waa=input$Waa,Wab=input$Wab,Wbb=input$Wbb,n=input$n,
-              nPop=input$nPop,m=input$m,stats=input$plotStats,drift=input$drift)
+              nPop=input$nPop,m=input$m,stats=input$plotStats,drift=input$drift,Uab=input$Uab,Uba=input$Uab)
   })
+  
+  plot.data <- eventReactive(sim.data(),{
+    meltPlotData(allele.freq.df = sim.data(),gen=input$gen,nPop=input$nPop,stats=input$plotStats)
+    })
   
   output$plot <- renderPlot({
     plotSingleRun(plot.data(),nPop=input$nPop,gen=input$gen)
+  })
+  
+  nLost.text <- eventReactive(sim.data(),{
+    p <- sim.data()[input$gen+1,1:input$nPop]
+    nFixed <- length(p[p==1])
+    nLost <- length(p[p==0])
+    paste0("Fixed: ",nFixed,".  Lost: ",nLost,".")
+  })
+  
+  output$nLost <- renderText({
+    nLost.text()
   })
   
   sumTable <- eventReactive(input$runSim,{
@@ -26,7 +41,8 @@ shinyServer(function(input,output,session){
     sumTable <- data.frame(matrix(ncol=14))
     withProgress(message="simulating populations...",value=0,{
       for(i in 1:100){
-        df <- runPopSim.noMelt(gen=100,p=input$p,Waa=input$Waa,Wab=input$Wab,Wbb=input$Wbb,n=input$n,nPop=2,m=input$m,drift=input$drift)
+        df <- runPopSim(gen=100,p=input$p,Waa=input$Waa,Wab=input$Wab,Wbb=input$Wbb,n=input$n,
+                               nPop=2,m=input$m,drift=input$drift,Uab=input$Uab,Uba=input$Uab)
         names(sumTable) <- names(df)
         sumTable[i,] <- df[nrow(df),]
         incProgress(1/100)
